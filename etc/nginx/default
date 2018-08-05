@@ -1,0 +1,76 @@
+# Pimcore
+
+server {
+  	listen 80 default_server;
+    root /var/www/pimcore/web;
+    index index.php;
+
+    location / {
+        error_page 404 /meta/404;
+        add_header "X-UA-Compatible" "IE=edge";
+        try_files $uri /app.php$is_args$args;
+    }
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+
+        fastcgi_keep_conn on;
+        fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+
+    # Pimcore Head-Link Cache-Busting
+    rewrite ^/cache-buster-(?:\d+)/(.*) /$1 last;
+
+    # Stay secure
+    #
+    # a) don't allow PHP in folders allowing file uploads
+    location ~* /var/assets/*\.php(/|$) {
+        return 404;
+    }
+    # b) Prevent clients from accessing hidden files (starting with a dot)
+    # Access to `/.well-known/` is allowed.
+    # https://www.mnot.net/blog/2010/04/07/well-known
+    # https://tools.ietf.org/html/rfc5785
+    location ~* /\.(?!well-known/) {
+        deny all;
+        log_not_found off;
+        access_log off;
+    }
+    # c) Prevent clients from accessing to backup/config/source files
+    location ~* (?:\.(?:bak|conf(ig)?|dist|fla|in[ci]|log|psd|sh|sql|sw[op])|~)$ {
+        deny all;
+    }
+
+    # Some Admin Modules need this:
+    # Database Admin, Server Info
+    location ~* ^/admin/(adminer|external) {
+        rewrite .* /app.php$is_args$args last;
+    }
+    
+    # Thumbnails
+    location ~* .*/(image|video)-thumb__\d+__.* {
+        try_files /var/tmp/$1-thumbnails$uri /app.php;
+        expires 2w;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    # Assets
+    # Still use a whitelist approach to prevent each and every missing asset to go through the PHP Engine.
+    location ~* (.+?)\.((?:css|js)(?:\.map)?|jpe?g|gif|png|svgz?|eps|exe|gz|zip|mp\d|ogg|ogv|webm|pdf|docx?|xlsx?|pptx?)$ {
+        try_files /var/assets$uri $uri =404;
+        expires 2w;
+        access_log off;
+        log_not_found off;
+        add_header Cache-Control "public";
+    }
+
+    # Installer
+    # Remove this if you don't need the web installer (anymore)
+    if (-f $document_root/install.php) {
+        rewrite ^/install(/?.*) /install.php last;
+    }
+}

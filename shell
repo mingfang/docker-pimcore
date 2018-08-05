@@ -1,0 +1,7 @@
+#!/bin/bash
+source helper
+
+mkdir -p data/var
+mkdir -p data/web/var
+
+docker run -v `pwd`/data/var:/var/www/pimcore/var -v `pwd`/data/web/var:/var/www/pimcore/web/var -e PIMCORE_INSTALL_ADMIN_USERNAME="admin" -e PIMCORE_INSTALL_ADMIN_PASSWORD="admin" -e PIMCORE_INSTALL_MYSQL_HOST_SOCKET="pimcore-db.default.svc.cluster.local" -e PIMCORE_INSTALL_MYSQL_USERNAME="pimcore" -e PIMCORE_INSTALL_MYSQL_PASSWORD="pimcore" -e PIMCORE_INSTALL_MYSQL_DATABASE="pimcore" -e PIMCORE_INSTALL_MYSQL_PORT="3306" --dns 172.27.0.2 -p 81:80 --rm -v `pwd`:/docker -w /var/www/pimcore -it ${IMAGE} bash

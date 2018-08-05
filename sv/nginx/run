@@ -1,0 +1,33 @@
+#!/bin/bash
+
+source /etc/envvars
+
+# copy original web var files
+mkdir -p /var/www/pimcore/web/var
+rsync -a -uW --stats --itemize-changes /var/www/pimcore/web/var.original/* /var/www/pimcore/web/var
+
+# copy original var files
+mkdir -p /var/www/pimcore/var
+rsync -a -uW --stats --itemize-changes /var/www/pimcore/var.original/* /var/www/pimcore/var
+
+# sym link tmp files to local fs
+
+mkdir -p /var/pimcore/var/cache
+rm -r /var/www/pimcore/var/cache || true
+ln -sf /var/pimcore/var/cache /var/www/pimcore/var
+
+mkdir -p /var/pimcore/var/tmp
+rm -r /var/www/pimcore/var/tmp || true
+ln -sf /var/pimcore/var/tmp /var/www/pimcore/var
+
+mkdir -p /var/pimcore/var/logs
+rm -r /var/www/pimcore/var/logs || true
+ln -sf /var/pimcore/var/logs /var/www/pimcore/var
+
+# ensure permissions
+chown -R www-data:www-data /var/www
+chown -R www-data:www-data /var/pimcore
+
+exec 2>&1
+exec nginx -g "daemon off;"
+
