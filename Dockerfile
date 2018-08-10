@@ -91,6 +91,7 @@ COPY etc/nginx/default /etc/nginx/sites-enabled/
 RUN cp /etc/php/7.2/fpm/php.ini  /etc/php/7.2/fpm/php.ini.original
 COPY etc/php/php.ini  /etc/php/7.2/fpm/php.ini
 COPY etc/php/www.conf  /etc/php/7.2/fpm/pool.d/www.conf
+COPY etc/crontab /crontab
 
 # Add runit services
 COPY sv /etc/service 
