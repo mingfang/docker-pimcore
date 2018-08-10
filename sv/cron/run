@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source /etc/envvars
+
+crontab /crontab
+
+exec 2>&1
+exec cron -f
