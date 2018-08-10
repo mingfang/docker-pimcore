@@ -24,6 +24,10 @@ mkdir -p /var/pimcore/var/logs
 rm -r /var/www/pimcore/var/logs || true
 ln -sf /var/pimcore/var/logs /var/www/pimcore/var
 
+mkdir -p /var/pimcore/web/var/tmp
+rm -r /var/www/pimcore/web/var/tmp || true
+ln -sf /var/pimcore/web/var/tmp /var/www/pimcore/web/var
+
 # ensure permissions
 chown -R www-data:www-data /var/www
 chown -R www-data:www-data /var/pimcore
