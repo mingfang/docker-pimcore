@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 as base
+FROM ubuntu:18.04 as base
 
 ENV DEBIAN_FRONTEND=noninteractive TERM=xterm
 RUN echo "export > /etc/envvars" >> /root/.bashrc && \
@@ -11,16 +11,16 @@ ENV LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
 # Runit
 RUN apt-get install -y --no-install-recommends runit
-CMD bash -c 'export > /etc/envvars && /usr/sbin/runsvdir-start'
+CMD bash -c 'export > /etc/envvars && /usr/bin/runsvdir /etc/service'
 
 # Utilities
-RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc iproute python ssh rsync gettext-base
+RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc iproute2 python ssh rsync gettext-base
 
 # PHP 7.1
-RUN apt-get install -y python-software-properties && \
-    add-apt-repository -y ppa:ondrej/php && \
-    apt-get update -y
-RUN apt-get install -y php-fpm php-xml php-mbstring php-mysql php-mcrypt php-intl php-zip php-imap php-curl php-gd php-bcmath php-bz2 php-apcu php-imagick php-redis
+#RUN apt-get install -y python-software-properties && \
+#    add-apt-repository -y ppa:ondrej/php && \
+#    apt-get update -y
+RUN apt-get install -y php-fpm php-xml php-mbstring php-mysql php-intl php-zip php-imap php-curl php-gd php-bcmath php-bz2 php-apcu php-imagick php-redis
 
 # Requirements
 
@@ -72,7 +72,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 # Pimcore
 
 RUN cd /var/www && \
-    COMPOSER_MEMORY_LIMIT=3G composer create-project --no-dev pimcore/demo-ecommerce pimcore
+    COMPOSER_MEMORY_LIMIT=4G composer create-project --no-dev pimcore/demo-ecommerce pimcore
     #COMPOSER_MEMORY_LIMIT=3G composer create-project --no-dev pimcore/skeleton pimcore
     #COMPOSER_MEMORY_LIMIT=3G composer create-project --no-dev pimcore/demo-basic pimcore
 
@@ -80,7 +80,7 @@ RUN cd /var/www/pimcore && \
     composer install --no-dev && \
     rm -r /var/www/pimcore/var/cache && \
     rm -r /var/www/pimcore/var/logs && \
-    rm -r /var/www/pimcore/var/tmp 
+    rm -r /var/www/pimcore/var/tmp
 
 RUN chown -R www-data:www-data /var/www
 RUN mv /var/www/pimcore/var /var/www/pimcore/var.original
