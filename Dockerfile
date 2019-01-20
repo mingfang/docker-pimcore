@@ -16,11 +16,11 @@ CMD bash -c 'export > /etc/envvars && /usr/bin/runsvdir /etc/service'
 # Utilities
 RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc iproute2 python ssh rsync gettext-base
 
-# PHP 7.1
-#RUN apt-get install -y python-software-properties && \
-#    add-apt-repository -y ppa:ondrej/php && \
-#    apt-get update -y
-RUN apt-get install -y php-fpm php-xml php-mbstring php-mysql php-intl php-zip php-imap php-curl php-gd php-bcmath php-bz2 php-apcu php-imagick php-redis
+# PHP 7.3
+RUN add-apt-repository -y ppa:ondrej/php && \
+    apt-get update -y
+RUN apt-get install -y php7.3
+RUN apt-get install -y php7.3-fpm php7.3-xml php7.3-mbstring php7.3-mysql php7.3-intl php7.3-zip php7.3-imap php7.3-curl php7.3-gd php7.3-bcmath php7.3-bz2 php7.3-apcu php7.3-imagick php7.3-redis
 
 # Requirements
 
@@ -88,9 +88,9 @@ RUN mv /var/www/pimcore/web/var /var/www/pimcore/web/var.original
 
 RUN chmod +x /var/www/pimcore/bin/*
 COPY etc/nginx/default /etc/nginx/sites-enabled/
-RUN cp /etc/php/7.2/fpm/php.ini  /etc/php/7.2/fpm/php.ini.original
-COPY etc/php/php.ini  /etc/php/7.2/fpm/php.ini
-COPY etc/php/www.conf  /etc/php/7.2/fpm/pool.d/www.conf
+RUN cp /etc/php/7.3/fpm/php.ini  /etc/php/7.3/fpm/php.ini.original
+COPY etc/php/php.ini  /etc/php/7.3/fpm/php.ini
+COPY etc/php/www.conf  /etc/php/7.3/fpm/pool.d/www.conf
 COPY etc/crontab /crontab
 
 # Add runit services
